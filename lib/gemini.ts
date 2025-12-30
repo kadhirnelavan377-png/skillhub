@@ -1,10 +1,13 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 
-// Standard initialization as per Google GenAI SDK guidelines
-const getAI = () => {
-  const apiKey = process.env.API_KEY;
+// Initialize the Gemini API client safely
+const getAIClient = () => {
+  // In Vite/Vercel, we access the key via process.env.API_KEY due to the vite.config.ts 'define' setting
+  const apiKey = (process.env as any).API_KEY;
+  
   if (!apiKey) {
-    throw new Error("API_KEY is missing. Please set it in your environment variables.");
+    // We return null instead of throwing to avoid crashing the whole app if the key is just missing
+    return null;
   }
   return new GoogleGenAI({ apiKey });
 };
@@ -15,50 +18,34 @@ export async function analyzeGrowth(
   currentContent: string,
   messageToFuture: string
 ): Promise<string> {
+  const ai = getAIClient();
+  
+  if (!ai) {
+    return "Growth Mirror Error: API_KEY is missing. Please add your Gemini API Key in Vercel project settings.";
+  }
+
   try {
-    const ai = getAI();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `You are an encouraging educational psychologist and mentor. Your task is to compare two skill recordings (past and present) by the same student to celebrate their growth.
+      contents: `You are an encouraging educational psychologist and mentor. Compare these two skill recordings.
 
 Skill Track: ${skillName}
 ---
-PAST RECORDING (Locked previously):
-"${pastContent}"
-
-MESSAGE PAST STUDENT SENT TO FUTURE SELF:
-"${messageToFuture}"
-
-PRESENT RECORDING (Today's achievement):
-"${currentContent}"
+PAST: "${pastContent}"
+GOAL AT THAT TIME: "${messageToFuture}"
+PRESENT: "${currentContent}"
 ---
 
-Analyze the improvement using these specific dimensions:
-1. Clarity of Explanation: How much clearer are they now?
-2. Confidence: Do they sound more self-assured and bold?
-3. Vocabulary Usage: What new terms or concepts are they using correctly?
-4. Speed and Structure: Is their thinking more organized or faster?
-5. Concept Understanding: How has their mental model of ${skillName} deepened?
-
-STRICT GUIDELINES:
-- Use positive, motivational language.
-- Provide specific examples of improvements found in the text.
-- Maintain a student-friendly tone (ages 11-18).
-- DO NOT use negative judgment or criticism.
-- DO NOT use marks, grades, or percentages.
-
-OUTPUT FORMAT:
-- A short, inspiring "Growth Summary" (2-3 sentences).
-- A section titled "Your Evolution" with bullet points for the 5 dimensions above.
-- A final encouraging closing thought reflecting on their message to their future self.`,
+Analyze the improvement in: Clarity, Confidence, Vocabulary, Structure, and Understanding.
+Be positive, specific, and student-friendly. No marks or grades.`,
       config: {
         temperature: 0.8,
       },
     });
 
-    return response.text || "Your Growth Mirror is foggy right now. Take a look at your past work and see how far you've come—you're doing great!";
+    return response.text || "Your Growth Mirror is foggy right now. Great job on completing your reflection!";
   } catch (error) {
     console.error("Growth Mirror Error:", error);
-    return "The Growth Mirror is taking a break. Please check if your API_KEY is set correctly in Vercel settings.";
+    return "The Growth Mirror is momentarily unavailable. Your progress is still saved!";
   }
 }

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Skill, Capsule, AppState } from './types';
 import { DEFAULT_SKILLS } from './constants';
@@ -7,9 +6,10 @@ import Dashboard from './components/Dashboard';
 import CreateCapsule from './components/CreateCapsule';
 import SkillTree from './components/SkillTree';
 import GrowthMirror from './components/GrowthMirror';
+import Settings from './components/Settings';
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'tree' | 'create' | 'mirror'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'tree' | 'create' | 'mirror' | 'settings'>('dashboard');
   const [state, setState] = useState<AppState>(() => {
     const saved = localStorage.getItem('skill_time_capsule_state');
     return saved ? JSON.parse(saved) : { skills: DEFAULT_SKILLS, capsules: [] };
@@ -24,8 +24,18 @@ const App: React.FC = () => {
     setState(prev => ({ ...prev, skills: [...prev.skills, skill] }));
   };
 
+  const updateSkills = (skills: Skill[]) => {
+    setState(prev => ({ ...prev, skills }));
+  };
+
   const addCapsule = (capsule: Capsule) => {
     setState(prev => ({ ...prev, capsules: [...prev.capsules, capsule] }));
+    setActiveTab('dashboard');
+  };
+
+  const resetState = () => {
+    const newState = { skills: DEFAULT_SKILLS, capsules: [] };
+    setState(newState);
     setActiveTab('dashboard');
   };
 
@@ -46,6 +56,8 @@ const App: React.FC = () => {
         const cap = state.capsules.find(c => c.id === selectedCapsuleId);
         const skill = state.skills.find(s => s.id === cap?.skillId);
         return <GrowthMirror capsule={cap} skill={skill} onBack={() => setActiveTab('dashboard')} />;
+      case 'settings':
+        return <Settings state={state} onReset={resetState} onUpdateSkills={updateSkills} onBack={() => setActiveTab('dashboard')} />;
       default:
         return <Dashboard state={state} onUnlock={unlockCapsule} onStartCreate={() => setActiveTab('create')} />;
     }

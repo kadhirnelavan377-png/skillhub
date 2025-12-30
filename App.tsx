@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Skill, Capsule, AppState } from './types';
+import { Skill, Capsule, AppState, User } from './types';
 import { DEFAULT_SKILLS } from './constants';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
@@ -7,18 +7,29 @@ import CreateCapsule from './components/CreateCapsule';
 import SkillTree from './components/SkillTree';
 import GrowthMirror from './components/GrowthMirror';
 import Settings from './components/Settings';
+import LoginScreen from './components/LoginScreen';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'tree' | 'create' | 'mirror' | 'settings'>('dashboard');
   const [state, setState] = useState<AppState>(() => {
     const saved = localStorage.getItem('skill_time_capsule_state');
-    return saved ? JSON.parse(saved) : { skills: DEFAULT_SKILLS, capsules: [] };
+    const initialState = saved ? JSON.parse(saved) : { user: null, skills: DEFAULT_SKILLS, capsules: [] };
+    return initialState;
   });
   const [selectedCapsuleId, setSelectedCapsuleId] = useState<string | null>(null);
 
   useEffect(() => {
     localStorage.setItem('skill_time_capsule_state', JSON.stringify(state));
   }, [state]);
+
+  const handleLogin = (user: User) => {
+    setState(prev => ({ ...prev, user }));
+  };
+
+  const handleLogout = () => {
+    setState(prev => ({ ...prev, user: null }));
+    setActiveTab('dashboard');
+  };
 
   const addSkill = (skill: Skill) => {
     setState(prev => ({ ...prev, skills: [...prev.skills, skill] }));
@@ -34,7 +45,7 @@ const App: React.FC = () => {
   };
 
   const resetState = () => {
-    const newState = { skills: DEFAULT_SKILLS, capsules: [] };
+    const newState = { user: state.user, skills: DEFAULT_SKILLS, capsules: [] };
     setState(newState);
     setActiveTab('dashboard');
   };
@@ -43,6 +54,10 @@ const App: React.FC = () => {
     setSelectedCapsuleId(id);
     setActiveTab('mirror');
   };
+
+  if (!state.user) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
 
   const renderContent = () => {
     switch (activeTab) {
@@ -65,7 +80,7 @@ const App: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-[#0f172a] text-slate-100 overflow-hidden">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} />
       <main className="flex-1 overflow-y-auto p-4 md:p-8">
         <div className="max-w-6xl mx-auto animate-fade-in">
           {renderContent()}

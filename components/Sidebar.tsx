@@ -4,9 +4,10 @@ import { LayoutDashboard, GitBranch, PlusCircle, Sparkles, LogOut, UserCheck, Se
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: any) => void;
+  onLogout: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout }) => {
   const navItems = [
     { id: 'dashboard', label: 'My Vault', icon: LayoutDashboard },
     { id: 'tree', label: 'Skill Tree', icon: GitBranch },
@@ -39,19 +40,16 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-slate-800 space-y-4">
+      <div className="p-4 border-t border-slate-800 space-y-2">
         <div 
-          onClick={() => {
-            // Secret way to enter settings with admin intent
-            setActiveTab('settings');
-          }}
-          className="bg-indigo-950/30 border border-indigo-500/20 rounded-xl p-3 hidden md:block cursor-pointer hover:bg-indigo-900/40 transition-colors group"
+          onClick={() => setActiveTab('settings')}
+          className="bg-slate-800/50 border border-slate-800 rounded-xl p-3 hidden md:block cursor-pointer hover:bg-slate-800 transition-colors group"
         >
           <div className="flex items-center gap-2 mb-1">
             <UserCheck size={14} className="text-indigo-400 group-hover:scale-110 transition-transform" />
             <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Creator</span>
           </div>
-          <p className="text-xs font-semibold text-slate-200 truncate">KADHIRNELAVAN SR</p>
+          <p className="text-xs font-semibold text-slate-200 truncate uppercase">KADHIRNELAVAN SR</p>
         </div>
         
         <button 
@@ -62,6 +60,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
         >
           <SettingsIcon size={20} />
           <span className="hidden md:block">Settings</span>
+        </button>
+
+        <button 
+          onClick={onLogout}
+          className="flex items-center gap-4 transition-colors w-full px-2 py-2 rounded-lg text-rose-500 hover:bg-rose-500/10"
+        >
+          <LogOut size={20} />
+          <span className="hidden md:block font-medium">Exit Vault</span>
         </button>
       </div>
     </aside>

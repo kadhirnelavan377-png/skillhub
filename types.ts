@@ -1,6 +1,13 @@
 
 export type SkillCategory = 'coding' | 'english' | 'maths' | 'creativity' | 'custom';
 
+export interface User {
+  id: string;
+  name: string;
+  avatar: string;
+  lastLogin: number;
+}
+
 export interface Skill {
   id: string;
   name: string;
@@ -23,13 +30,8 @@ export interface Capsule {
   comparisonResult?: string; // AI feedback
 }
 
-export interface GrowthInsight {
-  score: number;
-  category: string;
-  feedback: string;
-}
-
 export interface AppState {
+  user: User | null;
   skills: Skill[];
   capsules: Capsule[];
   currentSkillId?: string;

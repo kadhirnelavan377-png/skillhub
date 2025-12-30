@@ -1,7 +1,13 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Standard initialization as per Google GenAI SDK guidelines
+const getAI = () => {
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    throw new Error("API_KEY is missing. Please set it in your environment variables.");
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
 export async function analyzeGrowth(
   skillName: string,
@@ -10,6 +16,7 @@ export async function analyzeGrowth(
   messageToFuture: string
 ): Promise<string> {
   try {
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `You are an encouraging educational psychologist and mentor. Your task is to compare two skill recordings (past and present) by the same student to celebrate their growth.
@@ -52,6 +59,6 @@ OUTPUT FORMAT:
     return response.text || "Your Growth Mirror is foggy right now. Take a look at your past work and see how far you've come—you're doing great!";
   } catch (error) {
     console.error("Growth Mirror Error:", error);
-    return "The Growth Mirror is taking a break. Don't worry, your progress is still safely sealed in the vault!";
+    return "The Growth Mirror is taking a break. Please check if your API_KEY is set correctly in Vercel settings.";
   }
 }

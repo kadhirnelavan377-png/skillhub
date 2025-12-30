@@ -1,0 +1,8 @@
+{
+  "name": "SkillTime Capsule",
+  "description": "A self-improvement app for students to record skill milestones as time capsules, lock them for the future, and use AI to visualize their growth journey.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
